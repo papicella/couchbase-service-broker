@@ -1,0 +1,11 @@
+couchbase:
+  host: localhost
+  bucketName: default
+  bucketPassword:
+  clusterAdminUser: Administrator
+  clusterAdminPassword: welcome1
+security:
+  user:
+    name: user
+    password: password
+
