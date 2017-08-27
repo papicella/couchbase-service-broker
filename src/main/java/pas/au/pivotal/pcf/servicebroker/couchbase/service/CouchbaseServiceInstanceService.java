@@ -1,6 +1,5 @@
 package pas.au.pivotal.pcf.servicebroker.couchbase.service;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +39,9 @@ public class CouchbaseServiceInstanceService implements ServiceInstanceService {
 
         instance = new ServiceInstance(createServiceInstanceRequest);
 
-        String password = RandomStringUtils.randomAlphanumeric(25);
-
         try
         {
-            couchbaseAdminService.createDatabase(createServiceInstanceRequest.getServiceInstanceId(), password);
+            couchbaseAdminService.createDatabase(createServiceInstanceRequest.getServiceInstanceId());
         }
         catch (Exception ex)
         {
