@@ -6,6 +6,7 @@ import org.springframework.data.couchbase.config.AbstractCouchbaseConfiguration;
 import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepositories;
 import org.springframework.data.couchbase.repository.support.IndexManager;
 
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 

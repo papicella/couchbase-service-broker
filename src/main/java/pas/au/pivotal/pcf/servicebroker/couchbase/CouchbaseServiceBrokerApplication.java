@@ -13,5 +13,5 @@ public class CouchbaseServiceBrokerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(CouchbaseServiceBrokerApplication.class, args);
 	}
-
+	
 }

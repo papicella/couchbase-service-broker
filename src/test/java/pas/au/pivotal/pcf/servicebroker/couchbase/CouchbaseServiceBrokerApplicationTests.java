@@ -1,6 +1,7 @@
 package pas.au.pivotal.pcf.servicebroker.couchbase;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,6 +17,8 @@ import pas.au.pivotal.pcf.servicebroker.couchbase.service.CouchbaseAdminService;
 public class CouchbaseServiceBrokerApplicationTests {
 
     private final String testBucketName = "testbucket";
+    private final String testUser = "testuser";
+    private final String testPassword = "qrwrwgeg15!";
 
     @Autowired
     private CouchbaseAdminService couchbaseAdminService;
@@ -34,7 +37,14 @@ public class CouchbaseServiceBrokerApplicationTests {
     }
 
     @Test
-    public void ac_deleteDatabase()
+    public void ac_addPrimaryIndex()
+    {
+        boolean result = couchbaseAdminService.createPrimaryIndex(testBucketName);
+        Assert.assertTrue("true", result);
+    }
+
+    @Test
+    public void ad_deleteDatabase()
     {
         couchbaseAdminService.deleteDatabase(testBucketName);
         Assert.assertFalse(couchbaseAdminService.hasBucket(testBucketName));

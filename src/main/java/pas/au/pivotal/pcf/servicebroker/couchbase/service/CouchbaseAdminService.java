@@ -2,10 +2,12 @@ package pas.au.pivotal.pcf.servicebroker.couchbase.service;
 
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
-import com.couchbase.client.java.bucket.BucketManager;
 import com.couchbase.client.java.bucket.BucketType;
 import com.couchbase.client.java.cluster.*;
-import org.apache.commons.lang.RandomStringUtils;
+import com.couchbase.client.java.query.Index;
+import com.couchbase.client.java.query.N1qlQuery;
+import com.couchbase.client.java.query.N1qlQueryResult;
+import com.couchbase.client.java.query.dsl.path.index.UsingWithPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
+
 
 @Service
 public class CouchbaseAdminService
@@ -43,12 +46,21 @@ public class CouchbaseAdminService
     public void init()
     {
         cluster = CouchbaseCluster.create(host);
-        clusterManager = cluster.clusterManager(clusterAdminUser, clusterAdminPassword);
+
+        cluster.authenticate(clusterAdminUser, clusterAdminPassword);
+
+        clusterManager = cluster.clusterManager();
+        //clusterManager = cluster.clusterManager(clusterAdminUser, clusterAdminPassword);
+
         logger.info("Connected to Couchbase cluster for management with user : " + clusterAdminUser);
 
         //bucket = cluster.openBucket(bucketName);
         //logger.info("Connected to Couchbase using default bucket....");
 
+    }
+
+    public ClusterManager getClusterManager() {
+        return clusterManager;
     }
 
     public boolean hasBucket (String bucketName)
@@ -61,6 +73,7 @@ public class CouchbaseAdminService
         BucketSettings bucketSettings = new DefaultBucketSettings.Builder()
                 .type(BucketType.COUCHBASE)
                 .name(bucketName) // name of bucket to create
+                .password("welcome1")
                 .quota(120) // 120 megabytes
                 .replicas(1)
                 .indexReplicas(true)
@@ -79,7 +92,6 @@ public class CouchbaseAdminService
     public void emptyDatabase(String bucketName)
     {
         Bucket bucket = cluster.openBucket(bucketName);
-
         bucket.bucketManager().flush();
     }
 
@@ -92,6 +104,7 @@ public class CouchbaseAdminService
                 .roles(Arrays.asList(
                         // Roles required for the reading of data from
                         // the bucket.
+                        new UserRole("bucket_admin", bucketName),
                         new UserRole("data_reader", bucketName),
                         new UserRole("query_select", bucketName),
                         // Roles required for the writing of data into
@@ -99,11 +112,10 @@ public class CouchbaseAdminService
                         new UserRole("data_writer", bucketName),
                         new UserRole("query_insert", bucketName),
                         new UserRole("query_delete", bucketName),
+                        new UserRole("query_update", bucketName),
                         // Role required for the creation of indexes
                         // on the bucket.
-                        new UserRole("query_manage_index", bucketName))
-
-            );
+                        new UserRole("query_manage_index", bucketName)));
 
         clusterManager.upsertUser(username, userSettings);
 
@@ -112,6 +124,22 @@ public class CouchbaseAdminService
     public void removeUser (String username)
     {
         clusterManager.removeUser(username);
+    }
+
+    public boolean createPrimaryIndex (String bucketName)
+    {
+        //UsingWithPath usingWithPath = Index.createPrimaryIndex().on(bucketName);
+
+        bucket = cluster.openBucket("default");
+
+        String querySQL = "CREATE PRIMARY INDEX '%s-primary-index' ON '%s' USING GSI WITH {\"defer_build\":true};";
+
+        N1qlQuery query = N1qlQuery.simple(String.format(querySQL, bucketName, bucketName));
+        N1qlQueryResult result = cluster.query(query);
+
+        logger.info("query = " + result.status());
+
+        return true;
     }
 
 }
