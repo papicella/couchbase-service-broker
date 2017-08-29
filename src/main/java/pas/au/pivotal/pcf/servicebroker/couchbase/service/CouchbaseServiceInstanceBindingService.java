@@ -1,6 +1,5 @@
 package pas.au.pivotal.pcf.servicebroker.couchbase.service;
 
-import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import pas.au.pivotal.pcf.servicebroker.couchbase.model.ServiceInstanceBinding;
 import pas.au.pivotal.pcf.servicebroker.couchbase.repository.CouchbasePasswordMapperRepository;
 import pas.au.pivotal.pcf.servicebroker.couchbase.repository.CouchbaseServiceInstanceBindingRepository;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 

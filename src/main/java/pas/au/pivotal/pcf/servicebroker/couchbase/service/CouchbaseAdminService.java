@@ -4,10 +4,6 @@ import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
 import com.couchbase.client.java.bucket.BucketType;
 import com.couchbase.client.java.cluster.*;
-import com.couchbase.client.java.query.Index;
-import com.couchbase.client.java.query.N1qlQuery;
-import com.couchbase.client.java.query.N1qlQueryResult;
-import com.couchbase.client.java.query.dsl.path.index.UsingWithPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -37,10 +32,10 @@ public class CouchbaseAdminService
     @Value("${couchbase.bucketPassword:}")
     private String bucketPassword;
 
-    @Value("${couchbase.clusterAdminUser:admin}")
+    @Value("${couchbase.clusterAdminUser:Administrator}")
     private String clusterAdminUser;
 
-    @Value("${couchbase.clusterAdminPassword:admin}")
+    @Value("${couchbase.clusterAdminPassword:welcome1}")
     private String clusterAdminPassword;
 
     @PostConstruct

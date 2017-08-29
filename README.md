@@ -7,5 +7,11 @@ be evolved to much a production type setup in terms of bucket creation and acces
 
 - Clone as follows
 
+```
+git clone https://github.com/papicella/couchbase-service-broker.git
+```
+
+- 
+
 <hr />
 Pas Apicella [papicella at pivotal.io] is a Senior Platform Architect at Pivotal Australia 
