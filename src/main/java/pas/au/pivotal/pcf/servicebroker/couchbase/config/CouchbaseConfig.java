@@ -38,10 +38,4 @@ public class CouchbaseConfig extends AbstractCouchbaseConfiguration {
         return bucketPassword;
     }
 
-    //this is for dev so it is ok to auto-create indexes
-    @Override
-    public IndexManager indexManager() {
-        return new IndexManager(false, false, false);
-    }
-
 }

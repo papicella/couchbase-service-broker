@@ -17,7 +17,6 @@ import pas.au.pivotal.pcf.servicebroker.couchbase.service.CouchbaseAdminService;
 public class CouchbaseServiceBrokerApplicationTests {
 
     private final String testBucketName = "testbucket";
-    private final String testUser = "testuser";
     private final String testPassword = "qrwrwgeg15!";
 
     @Autowired
@@ -26,7 +25,7 @@ public class CouchbaseServiceBrokerApplicationTests {
     @Test
     public void aa_createDatabase()
     {
-        couchbaseAdminService.createDatabase(testBucketName);
+        couchbaseAdminService.createDatabase(testBucketName, testPassword);
         Assert.assertTrue(couchbaseAdminService.hasBucket(testBucketName));
     }
 
@@ -39,7 +38,7 @@ public class CouchbaseServiceBrokerApplicationTests {
     @Test
     public void ac_addPrimaryIndex()
     {
-        boolean result = couchbaseAdminService.createPrimaryIndex(testBucketName);
+        boolean result = couchbaseAdminService.createPrimaryIndex(testBucketName, testPassword);
         Assert.assertTrue("true", result);
     }
 

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 
 @Service
@@ -22,8 +23,8 @@ public class CouchbaseAdminService
 {
     private Logger logger = LoggerFactory.getLogger(CouchbaseAdminService.class);
 
-    private CouchbaseCluster cluster;
-    private ClusterManager clusterManager;
+    private static CouchbaseCluster cluster;
+    private static ClusterManager clusterManager;
 
     private Bucket bucket;
 
@@ -47,15 +48,15 @@ public class CouchbaseAdminService
     {
         cluster = CouchbaseCluster.create(host);
 
-        cluster.authenticate(clusterAdminUser, clusterAdminPassword);
+        //cluster.authenticate(clusterAdminUser, clusterAdminPassword);
+        //clusterManager = cluster.clusterManager();
 
-        clusterManager = cluster.clusterManager();
-        //clusterManager = cluster.clusterManager(clusterAdminUser, clusterAdminPassword);
+        clusterManager = cluster.clusterManager(clusterAdminUser, clusterAdminPassword);
 
         logger.info("Connected to Couchbase cluster for management with user : " + clusterAdminUser);
 
-        //bucket = cluster.openBucket(bucketName);
-        //logger.info("Connected to Couchbase using default bucket....");
+        bucket = cluster.openBucket(bucketName);
+        logger.info("Connected to Couchbase using default bucket....");
 
     }
 
@@ -68,12 +69,12 @@ public class CouchbaseAdminService
         return clusterManager.hasBucket(bucketName);
     }
 
-    public void createDatabase (String bucketName)
+    public void createDatabase (String bucketName, String password)
     {
         BucketSettings bucketSettings = new DefaultBucketSettings.Builder()
                 .type(BucketType.COUCHBASE)
                 .name(bucketName) // name of bucket to create
-                .password("welcome1")
+                .password(password)
                 .quota(120) // 120 megabytes
                 .replicas(1)
                 .indexReplicas(true)
@@ -126,18 +127,12 @@ public class CouchbaseAdminService
         clusterManager.removeUser(username);
     }
 
-    public boolean createPrimaryIndex (String bucketName)
+    public boolean createPrimaryIndex (String bucketName, String bucketPassword)
     {
-        //UsingWithPath usingWithPath = Index.createPrimaryIndex().on(bucketName);
+        Bucket myBucket = cluster.openBucket(bucketName, bucketPassword);
+        myBucket.bucketManager().createN1qlPrimaryIndex(true, false);
 
-        bucket = cluster.openBucket("default");
-
-        String querySQL = "CREATE PRIMARY INDEX '%s-primary-index' ON '%s' USING GSI WITH {\"defer_build\":true};";
-
-        N1qlQuery query = N1qlQuery.simple(String.format(querySQL, bucketName, bucketName));
-        N1qlQueryResult result = cluster.query(query);
-
-        logger.info("query = " + result.status());
+        myBucket.close();
 
         return true;
     }

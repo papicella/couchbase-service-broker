@@ -1,5 +1,5 @@
 couchbase:
-  host: localhost
+  host: pas-macbook.local
   bucketName: default
   bucketPassword:
   clusterAdminUser: Administrator
@@ -8,5 +8,6 @@ security:
   user:
     name: user
     password: password
+#pas-macbook.local
 
 

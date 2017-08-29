@@ -13,7 +13,9 @@ import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindin
 import org.springframework.cloud.servicebroker.model.DeleteServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.service.ServiceInstanceBindingService;
 import org.springframework.stereotype.Service;
+import pas.au.pivotal.pcf.servicebroker.couchbase.model.PasswordMapper;
 import pas.au.pivotal.pcf.servicebroker.couchbase.model.ServiceInstanceBinding;
+import pas.au.pivotal.pcf.servicebroker.couchbase.repository.CouchbasePasswordMapperRepository;
 import pas.au.pivotal.pcf.servicebroker.couchbase.repository.CouchbaseServiceInstanceBindingRepository;
 
 import java.util.Collections;
@@ -29,11 +31,16 @@ public class CouchbaseServiceInstanceBindingService implements ServiceInstanceBi
 
     private CouchbaseAdminService couchbaseAdminService;
     private CouchbaseServiceInstanceBindingRepository couchbaseServiceInstanceBindingRepository;
+    private CouchbasePasswordMapperRepository couchbasePasswordMapperRepository;
 
     @Autowired
-    public CouchbaseServiceInstanceBindingService(CouchbaseAdminService couchbaseAdminService, CouchbaseServiceInstanceBindingRepository couchbaseServiceInstanceBindingRepository) {
+    public CouchbaseServiceInstanceBindingService
+            (CouchbaseAdminService couchbaseAdminService,
+             CouchbaseServiceInstanceBindingRepository couchbaseServiceInstanceBindingRepository,
+             CouchbasePasswordMapperRepository couchbasePasswordMapperRepository) {
         this.couchbaseAdminService = couchbaseAdminService;
         this.couchbaseServiceInstanceBindingRepository = couchbaseServiceInstanceBindingRepository;
+        this.couchbasePasswordMapperRepository = couchbasePasswordMapperRepository;
     }
 
     @Override
@@ -49,15 +56,13 @@ public class CouchbaseServiceInstanceBindingService implements ServiceInstanceBi
         }
 
         String database = serviceInstanceId;
-        String username = bindingId;
-        String password = RandomStringUtils.randomAlphanumeric(25);
 
-        couchbaseAdminService.addUserToDatabase(serviceInstanceId, username, password);
+        PasswordMapper passwordMapper = couchbasePasswordMapperRepository.findOne("CF-" + serviceInstanceId);
 
         Map<String, Object> credentials = new HashMap<>();
         credentials.put("uri", "couchbase://" + host + "/" + database);
-        credentials.put("user", username);
-        credentials.put("password", password);
+        credentials.put("bucketName", database);
+        credentials.put("password", passwordMapper.getPassword());
 
         binding = new ServiceInstanceBinding
                 (bindingId,
@@ -66,11 +71,6 @@ public class CouchbaseServiceInstanceBindingService implements ServiceInstanceBi
                  null,
                  createServiceInstanceBindingRequest.getBoundAppGuid());
         couchbaseServiceInstanceBindingRepository.save(binding);
-
-        // create URI
-        // https://developer.couchbase.com/documentation/server/4.1/developer-guide/connecting.html
-        // couchbase://10.4.3.41,10.4.3.42,10.4.3.43/default
-        // couchbase://10.4.3.41/bucketName
 
         return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
     }
@@ -86,7 +86,6 @@ public class CouchbaseServiceInstanceBindingService implements ServiceInstanceBi
             throw new ServiceInstanceBindingDoesNotExistException(bindingId);
         }
 
-        couchbaseAdminService.removeUser(bindingId);
         couchbaseServiceInstanceBindingRepository.delete(bindingId);
 
     }
