@@ -118,7 +118,98 @@ https://image.ibb.co/n92FRv/couchbase_sb_1.png
 ![alt tag](https://image.ibb.co/m7ctDa/couchbase_sb_3.png)
 
 
-- 
+- View marketplace from command line
+
+```
+pasapicella@pas-macbook:~/apps/pcf-dev$ cf marketplace
+Getting services from marketplace in org pcfdev-org / space pcfdev-space as admin...
+OK
+
+service        plans             description
+couchbase      default*          A simple Couchbase service broker implementation
+local-volume   free-local-disk   Local service docs: https://github.com/cloudfoundry-incubator/local-volume-release/
+mongodb        default*          A simple MongoDB service broker implementation
+p-mysql        512mb, 1gb        MySQL databases on demand
+p-rabbitmq     standard          RabbitMQ is a robust and scalable high-performance multi-protocol messaging broker.
+p-redis        shared-vm         Redis service to provide a key-value store
+```
+
+- Create a service from the command line as follows
+
+```
+pasapicella@pas-macbook:~/apps/pcf-dev$ cf create-service couchbase default couchbase-service
+Creating service instance couchbase-service in org pcfdev-org / space pcfdev-space as admin...
+OK
+
+Attention: The plan `default` of service `couchbase` is not free.  The instance `couchbase-service` will incur a cost.  Contact your administrator if you think this is in error.
+
+```
+
+- View services
+
+```
+pasapicella@pas-macbook:~/apps/pcf-dev$ cf services
+Getting services in org pcfdev-org / space pcfdev-space as admin...
+OK
+
+name                service     plan      bound apps           last operation
+pas-mysql           p-mysql     512mb     pas-springboot-pcf   create succeeded
+mymongodb           mongodb     default                        delete failed
+couchbase-service   couchbase   default                        create succeeded
+```
+
+- Verify through Couchbase console a new bucket has been created
+
+![alt tag](https://image.ibb.co/mfQieF/couchbase_sb_4.png)
+
+- Bind service to an application
+
+```
+pasapicella@pas-macbook:~/apps/pcf-dev$ cf bind-service pas-springboot-pcf couchbase-service
+Binding service couchbase-service to app pas-springboot-pcf in org pcfdev-org / space pcfdev-space as admin...
+OK
+TIP: Use 'cf restage pas-springboot-pcf' to ensure your env variable changes take effect
+```
+
+- Verify bound sercice injects bucket and password details into VCAP_SERVICES
+
+```
+pasapicella@pas-macbook:~/apps/pcf-dev$ cf env pas-springboot-pcf
+Getting env variables for app pas-springboot-pcf in org pcfdev-org / space pcfdev-space as admin...
+OK
+
+System-Provided:
+{
+ "VCAP_SERVICES": {
+  "couchbase": [
+   {
+    "credentials": {
+     "bucketName": "8301d536-771f-4e3b-a63d-b2fe8e95a0de",
+     "password": "szBgpmyj0lUKW7x",
+     "uri": "couchbase://pas-macbook.local/8301d536-771f-4e3b-a63d-b2fe8e95a0de"
+    },
+    "label": "couchbase",
+    "name": "couchbase-service",
+    "plan": "default",
+    "provider": null,
+    "syslog_drain_url": null,
+    "tags": [
+     "couchbase",
+     "document"
+    ],
+    "volume_mounts": []
+   }
+  ],
+
+```
+
+- Unbind the service
+
+```
+pasapicella@pas-macbook:~/apps/pcf-dev$ cf unbind-service pas-springboot-pcf couchbase-service
+Unbinding app pas-springboot-pcf from service couchbase-service in org pcfdev-org / space pcfdev-space as admin...
+OK
+```
 
 <hr />
 Pas Apicella [papicella at pivotal.io] is a Senior Platform Architect at Pivotal Australia 
