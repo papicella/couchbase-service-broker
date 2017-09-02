@@ -1,4 +1,4 @@
-<H1>Couchbase Service Broker for PCF </h1>
+<H1>Couchbase 4.6.x Service Broker for Pivotal Cloud Foundry </h1>
 
 The following example is a PCF 2.0 Service Broker written as a Spring Boot application. This is just an example and should
 be evolved to match a production type setup in terms of bucket creation and access for created service instances.
@@ -10,6 +10,8 @@ be evolved to match a production type setup in terms of bucket creation and acce
 ```
 git clone https://github.com/papicella/couchbase-service-broker.git
 ```
+
+- Edir src/main/resources 
 
 - 
 

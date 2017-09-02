@@ -50,7 +50,8 @@ public class CouchbaseAdminService
 
         logger.info("Connected to Couchbase cluster for management with user : " + clusterAdminUser);
 
-        bucket = cluster.openBucket(bucketName);
+        bucket = cluster.openBucket(bucketName, bucketPassword);
+
         logger.info("Connected to Couchbase using default bucket....");
 
     }
